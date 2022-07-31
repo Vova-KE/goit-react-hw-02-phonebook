@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import ContactForm from "./ContactForm";
 import Filter from "./Filter";
 import ContactList from "./ContactList";
+import { nanoid } from 'nanoid'
 import styles from './styles.module.css';
 
 class App extends Component {
@@ -21,13 +22,25 @@ class App extends Component {
 
   formSubmitHandler = newContact => {
     const contactItem = {
+      id: nanoid(),
       name: newContact.name,
       number: newContact.number,
     };
 
+    if (this.state.contacts.find(contact =>
+      contact.name.toLowerCase().includes(contactItem.name.toLowerCase()))) {
+        alert("This contact already exists!")
+    } else {
+      this.setState(prevState => ({
+        contacts: [...prevState.contacts, contactItem]
+      }));
+    };
+  };
+
+  deleteContact = (contactId) => {
     this.setState(prevState => ({
-      contacts: [...prevState.contacts, contactItem]
-    }));
+      contacts: prevState.contacts.filter(contact => contact.id !== contactId)
+    }))
   };
 
   render() {
@@ -41,7 +54,7 @@ class App extends Component {
         <ContactForm onSubmitForm={this.formSubmitHandler} />
         <h2 className={styles.header}>Contacts</h2>
         <Filter value={this.state.filter} onChange={this.changeFilter}/>
-        <ContactList foundContacts={foundContacts} />
+        <ContactList foundContacts={foundContacts} onDeleteContact={this.deleteContact} />
       </div>
     );
   };
